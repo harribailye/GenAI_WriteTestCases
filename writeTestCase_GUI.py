@@ -1,12 +1,13 @@
 from openai import OpenAI
 import tkinter as tk
 from tkinter import messagebox
+import re
 
 # Set up the OpenAI API
 client = OpenAI(api_key="")
 
 # Base system role message
-base_system_role_message = "You are a functional test case writer, write a test case for each main scenario with numbered test steps under each test case. Each step should have an EXPECTED RESULT attached."
+base_system_role_message = "You are a test case writer, write a test case for each main scenario with numbered test steps under each test case. Each step should have an Expected Result attached."
 
 def submit_test_case():
     # Extract the content of the test case entry
@@ -34,7 +35,7 @@ def submit_test_case():
         system_role_message = f"{base_system_role_message}\n{additional_system_role_message}"
 
         # Include number of scenarios, minimum test steps, and maximum test steps per scenario in the user message
-        user_message = f"Number of Scenarios to Produce, Don't produce more: {num_scenarios}  |  Define Additional System Role Message: {additional_system_role_message}\nMinimum Test Steps Per Scenario: {min_test_steps}\nMaximum Test Steps Per Scenario: {max_test_steps}\n{test_case_content}"
+        user_message = f"Write exactly {num_scenarios} test scenarios where each scenario has between {min_test_steps} and {max_test_steps} test steps |  Define Additional System Role Message: {additional_system_role_message}\n{test_case_content}"
 
         # Prepare messages for ChatGPT
         messages = [{"role": "user", "content": user_message},
@@ -62,10 +63,20 @@ def generate_coverage_summary(generated_test_cases, acceptance_criteria):
     # Calculate coverage percentage
     coverage_percentage = calculate_coverage_percentage(generated_test_cases, acceptance_criteria)
     
+    # Extract scenario titles using regex
+    scenario_titles = re.findall(r'Test Scenario \d+: (.+)', generated_test_cases)
+    
+    # Add scenario numbers to each scenario title
+    formatted_scenario_titles = [f"Scenario {i+1}: {title}" for i, title in enumerate(scenario_titles)]
+    
+    test_scenario_overview = "\n".join(formatted_scenario_titles)
+    
+    # Initialize the summary variable
+    summary = ""
+    
     # Construct coverage summary
-    summary = f"Test Coverage Summary:\n"
     summary += f"Coverage Percentage: {coverage_percentage}%\n"
-    summary += f"Test Scenario Overview:\n{generated_test_cases}\n"
+    summary += f"\nTest Scenario Overview:\n{test_scenario_overview}\n"
     
     return summary
 
@@ -90,18 +101,10 @@ def calculate_coverage_percentage(generated_test_cases, acceptance_criteria):
     return round(coverage_percentage, 2)
 
 def generate_scenario_overview(generated_test_cases):
-    # For demonstration purposes, let's assume the test cases are separated by 'Test Case'
-    test_cases = generated_test_cases.split('Test Case')[1:]  # Skip the first empty element
-    test_scenario_overview = ""
-    scenario_counter = 0
-    for test_case in test_cases:
-        scenario_counter += 1
-        lines = test_case.strip().split('\n')
-        scenario_title = lines[0]
-        test_steps = "\n".join(lines[1:])
-        test_scenario_overview += f"Scenario {scenario_counter}: {scenario_title}\n{test_steps}\n\n"
+    pattern = r"Test Scenario \d+: (.+)"  # Regex pattern to match scenario titles
+    scenario_titles = re.findall(pattern, generated_test_cases)
+    test_scenario_overview = "\n".join(scenario_titles)
     return test_scenario_overview
-
 
 def clear_text():
     test_case_output.delete("1.0", tk.END)
