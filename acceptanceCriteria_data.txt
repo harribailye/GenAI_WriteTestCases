@@ -1,0 +1,21 @@
+User Registration Form:
+The user registration form should contain the following fields: username, email address, password, full name (optional), and profile picture (optional).
+Each field should have appropriate labels and placeholders for clarity.
+Proper validation checks should be implemented for each field to ensure data integrity and prevent common input errors.
+Username Field:
+Accepts alphanumeric characters (letters and numbers) and underscores only.
+Length must be between 3 and 20 characters.
+Displays an error message if the username contains special characters or exceeds the character limit.
+Email Address Field:
+Validates the format of the email address using regular expressions.
+Displays an error message if the email format is incorrect.
+Password Field:
+Requires a minimum of 8 characters.
+Must include at least one uppercase letter, one lowercase letter, one number, and one special character.
+Provides a visual indication of password strength.
+Full Name Field (Optional):
+Allows alphabetic characters and spaces only.
+Length should be limited to a reasonable maximum, such as 50 characters.
+Profile Picture Field (Optional):
+Supports common image file formats (e.g., JPEG, PNG).
+Limits the file size to a reasonable maximum, such as 5MB.'
